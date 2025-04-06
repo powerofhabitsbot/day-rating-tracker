@@ -81,6 +81,21 @@
       document.getElementById('message').textContent = `Оценка выбрана: ${value}`;
     }
 
+    function getRandomMessage() {
+      const messages = [
+        'Красавчик! 👏',
+        'Главное — движение, а не идеальность 💪',
+        'Ты уже лучше, чем был вчера ✨',
+        'Отметил — победил!',
+        'Маленькие шаги — большие изменения 🚶‍♂️',
+        'Так держать!',
+        'Ты молодец, даже если день был не идеален.',
+        'Заметить — значит изменить.',
+        'Ты с собой в контакте. Это главное.'
+      ];
+      return messages[Math.floor(Math.random() * messages.length)];
+    }
+
     function saveDay() {
       const good = document.getElementById('good').value;
       const bad = document.getElementById('bad').value;
@@ -108,7 +123,9 @@
         body: JSON.stringify(entry)
       });
 
-      document.getElementById('message').textContent = 'День сохранён! До завтра 🙌';
+      const message = getRandomMessage();
+      document.getElementById('message').textContent = 'День сохранён! ' + message;
+
       document.getElementById('good').value = '';
       document.getElementById('bad').value = '';
       document.getElementById('improve').value = '';
