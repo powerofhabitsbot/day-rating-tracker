@@ -51,6 +51,56 @@
       font-weight: bold;
       color: green;
     }
+    .calendar {
+      width: 100%;
+      max-width: 600px;
+      margin-top: 40px;
+    }
+    .month {
+      margin-bottom: 20px;
+    }
+    .month h3 {
+      margin: 10px 0;
+      text-align: left;
+    }
+    .days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+    }
+    .day {
+      width: 100%;
+      padding-top: 100%;
+      position: relative;
+      background-color: #eee;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .day[data-color]::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 4px;
+    }
+    .modal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 400px;
+      width: 100%;
+    }
   </style>
 </head>
 <body>
@@ -70,6 +120,12 @@
   <button class="save-btn" onclick="saveDay()">Сохранить день</button>
 
   <div class="message" id="message"></div>
+
+  <div class="calendar" id="calendar"></div>
+
+  <div id="modal" class="modal" style="display:none;">
+    <div class="modal-content" id="modal-content"></div>
+  </div>
 
   <script>
     let rating = null;
@@ -131,6 +187,79 @@
       document.getElementById('improve').value = '';
       rating = null;
     }
+
+    const colorMap = {
+      '🟢': '#4caf50',
+      '🟡': '#ffeb3b',
+      '⚪️': '#e0e0e0',
+      '🔴': '#f44336',
+      '⚫️': '#212121'
+    };
+
+    async function renderYearCalendar() {
+      const container = document.getElementById('calendar');
+      const userId = tg.initDataUnsafe.user?.id || 'неизвестно';
+      const url = `https://script.google.com/macros/s/AKfycbwaC2YvkmL3LSyPaywmHC-5V0LZbuXZ0bTy0Td-fEsazHo4eKlUtaeP329BT90WImL_Gg/exec?user_id=${userId}`;
+
+      const res = await fetch(url);
+      const data = await res.json();
+      const months = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
+
+      for (let m = 0; m < 12; m++) {
+        const month = document.createElement('div');
+        month.className = 'month';
+
+        const title = document.createElement('h3');
+        title.textContent = months[m];
+        month.appendChild(title);
+
+        const grid = document.createElement('div');
+        grid.className = 'days';
+
+        const daysInMonth = new Date(2025, m + 1, 0).getDate();
+        const firstDay = new Date(2025, m, 1).getDay();
+        const shift = firstDay === 0 ? 6 : firstDay - 1;
+
+        for (let i = 0; i < shift; i++) {
+          const empty = document.createElement('div');
+          empty.className = 'day';
+          grid.appendChild(empty);
+        }
+
+        for (let d = 1; d <= daysInMonth; d++) {
+          const dateStr = `2025-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+          const cell = document.createElement('div');
+          cell.className = 'day';
+
+          if (data[dateStr]) {
+            const color = colorMap[data[dateStr].rating];
+            cell.style.backgroundColor = color;
+            cell.onclick = () => showModal(dateStr, data[dateStr]);
+          }
+
+          grid.appendChild(cell);
+        }
+
+        month.appendChild(grid);
+        container.appendChild(month);
+      }
+    }
+
+    function showModal(date, info) {
+      const modal = document.getElementById('modal');
+      const content = document.getElementById('modal-content');
+
+      content.innerHTML = `<h3>${date}</h3>
+        <p><b>Оценка:</b> ${info.rating}</p>
+        <p><b>Хорошее:</b> ${info.good || '-'}</p>
+        <p><b>Плохое:</b> ${info.bad || '-'}</p>
+        <p><b>Улучшить:</b> ${info.improve || '-'}</p>
+        <button onclick="document.getElementById('modal').style.display='none'">Закрыть</button>`;
+
+      modal.style.display = 'flex';
+    }
+
+    renderYearCalendar();
   </script>
 </body>
 </html>
