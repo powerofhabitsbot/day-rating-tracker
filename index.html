@@ -170,14 +170,20 @@
         improve
       };
 
-      fetch('https://script.google.com/a/macros/antago.org/s/AKfycbxlgjROW1RtrAX5qebKDG_3Pi81FgRhocfDdfzWu5GhPBRBl5NkAX6YfiOp5NB4zOfz7A/exec', {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(entry)
-      });
+      fetch('https://script.google.com/macros/s/AKfycbzq9m-4orNgcyitSQaTP6uT-xQVJLW4zN0MZWygtfiJKbGM26S6FavsGEoLoBvquKPHAQ/exec', {
+  method: 'POST',
+  body: JSON.stringify({
+    user_id: telegram.initDataUnsafe.user?.id,
+    rating: selectedRating,
+    good: goodText,
+    bad: badText,
+    improve: improveText
+  }),
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
 
       const message = getRandomMessage();
       document.getElementById('message').textContent = 'День сохранён! ' + message;
