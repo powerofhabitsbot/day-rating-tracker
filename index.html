@@ -121,12 +121,13 @@
       }
 
       const payload = {
-        user_id: tg.initDataUnsafe.user?.id || 'неизвестно',
-        rating: selectedRating,
-        good,
-        bad,
-        improve
-      };
+  user_id: tg.initDataUnsafe.user?.id || 'неизвестно',
+  rating: selectedRating,
+  good: document.getElementById('good').value,
+  bad: document.getElementById('bad').value,
+  improve: document.getElementById('improve').value
+};
+
 
       fetch('https://script.google.com/macros/s/AKfycbzq9m-4orNgcyitSQaTP6uT-xQVJLW4zN0MZWygtfiJKbGM26S6FavsGEoLoBvquKPHAQ/exec', {
         method: 'POST',
