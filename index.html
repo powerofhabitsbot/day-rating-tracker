@@ -25,13 +25,9 @@
       font-size: 20px;
       margin-bottom: 10px;
     }
-    .instruction {
-      margin-bottom: 15px;
-      font-size: 16px;
-    }
     .legend {
       font-size: 14px;
-      margin-bottom: 10px;
+      margin-bottom: 15px;
       line-height: 1.6;
     }
     .rating-buttons {
@@ -111,23 +107,15 @@
     }
 
     function saveDay() {
-      const good = document.getElementById('good').value;
-      const bad = document.getElementById('bad').value;
-      const improve = document.getElementById('improve').value;
-
-      if (!selectedRating) {
-        alert('Пожалуйста, выберите оценку дня.');
-        return;
-      }
-
       const payload = {
-  user_id: tg.initDataUnsafe.user?.id || 'неизвестно',
-  rating: selectedRating,
-  good: document.getElementById('good').value,
-  bad: document.getElementById('bad').value,
-  improve: document.getElementById('improve').value
-};
+        user_id: tg.initDataUnsafe.user?.id || 'неизвестно',
+        rating: selectedRating,
+        good: document.getElementById('good').value,
+        bad: document.getElementById('bad').value,
+        improve: document.getElementById('improve').value
+      };
 
+      console.log("Отправка:", payload);
 
       fetch('https://script.google.com/macros/s/AKfycbzq9m-4orNgcyitSQaTP6uT-xQVJLW4zN0MZWygtfiJKbGM26S6FavsGEoLoBvquKPHAQ/exec', {
         method: 'POST',
