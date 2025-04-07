@@ -1,137 +1,156 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Сила привычек — Оценка дня</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Оценка дня</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     body {
-      font-family: sans-serif;
       margin: 0;
-      padding: 16px;
-      background: #f4f4f4;
-    }
-    h1 {
-      font-size: 20px;
-      margin-bottom: 8px;
-    }
-    .rating-buttons {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(160deg, #c471f5, #fa71cd);
+      color: #fff;
       display: flex;
-      gap: 8px;
-      margin: 12px 0;
-    }
-    .circle {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      border: 2px solid #ccc;
-      cursor: pointer;
-      display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
+      padding: 30px 20px;
+    }
+
+    h1 {
       font-size: 24px;
-    }
-    .selected {
-      border: 3px solid black;
-    }
-    textarea {
-      width: 100%;
-      min-height: 60px;
-      margin-top: 10px;
-      padding: 8px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      resize: vertical;
-      font-size: 14px;
-    }
-    button {
-      margin-top: 20px;
-      width: 100%;
-      padding: 14px;
-      font-size: 16px;
-      background-color: #2c6ef2;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    #message {
-      margin-top: 12px;
-      font-weight: bold;
-      color: green;
+      margin-bottom: 20px;
       text-align: center;
+    }
+
+    .rating-group {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+
+    .option {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      color: #fff;
+      background-color: rgba(255,255,255,0.1);
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .option.selected {
+      outline: 3px solid #fff;
+      background-color: rgba(255,255,255,0.3);
+    }
+
+    input, textarea {
+      width: 100%;
+      max-width: 500px;
+      padding: 14px;
+      margin-bottom: 18px;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      background-color: #ffffffdd;
+      color: #333;
+      resize: vertical;
+    }
+
+    button {
+      padding: 14px 26px;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      background-color: #fff;
+      color: #c471f5;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    .message {
+      margin-top: 15px;
+      font-weight: 500;
     }
   </style>
 </head>
 <body>
-  <h1>📊 Оцените свой день по шкале:</h1>
-  <div>🟢 Отличный • 🟡 Хороший • ⚪️ Обычный • 🔴 Плохой • ⚫️ Ужасный</div>
-  <div class="rating-buttons">
-    <div class="circle" data-value="🟢" style="background-color:#4caf50;"></div>
-    <div class="circle" data-value="🟡" style="background-color:#ffeb3b;"></div>
-    <div class="circle" data-value="⚪️" style="background-color:#e0e0e0;"></div>
-    <div class="circle" data-value="🔴" style="background-color:#f44336;"></div>
-    <div class="circle" data-value="⚫️" style="background-color:#212121;"></div>
+  <h1>📊 Как прошёл твой день?</h1>
+
+  <div class="rating-group" id="ratingOptions">
+    <button class="option" data-value="Отличный">🟢 Отличный</button>
+    <button class="option" data-value="Хороший">🟡 Хороший</button>
+    <button class="option" data-value="Нормальный">⚪ Нормальный</button>
+    <button class="option" data-value="Плохой">🔴 Плохой</button>
+    <button class="option" data-value="Ужасный">⚫ Ужасный</button>
   </div>
 
-  <textarea id="good" placeholder="Что было хорошо?"></textarea>
-  <textarea id="bad" placeholder="Что было плохо?"></textarea>
-  <textarea id="improve" placeholder="Что можно улучшить?"></textarea>
+  <input type="text" id="good" placeholder="Что было хорошо?">
+  <input type="text" id="bad" placeholder="Что было плохо?">
+  <input type="text" id="improve" placeholder="Что можно улучшить?">
 
-  <button id="save">Сохранить день</button>
-  <div id="message"></div>
+  <button id="submitBtn">Сохранить</button>
+  <div class="message" id="resultMsg"></div>
 
   <script>
-    const tg = window.Telegram.WebApp;
-    tg.expand();
+    const options = document.querySelectorAll(".option");
     let selectedRating = null;
 
-    document.querySelectorAll('.circle').forEach(circle => {
-      circle.addEventListener('click', () => {
-        document.querySelectorAll('.circle').forEach(c => c.classList.remove('selected'));
-        circle.classList.add('selected');
-        selectedRating = circle.dataset.value;
+    options.forEach(btn => {
+      btn.addEventListener("click", () => {
+        options.forEach(b => b.classList.remove("selected"));
+        btn.classList.add("selected");
+        selectedRating = btn.dataset.value;
       });
     });
 
-    document.getElementById('save').addEventListener('click', () => {
+    document.getElementById("submitBtn").addEventListener("click", () => {
+      const good = document.getElementById("good").value;
+      const bad = document.getElementById("bad").value;
+      const improve = document.getElementById("improve").value;
+
+      const tg = window.Telegram.WebApp;
+      const userId = tg?.initDataUnsafe?.user?.id || "unknown";
+
       if (!selectedRating) {
-        alert('Пожалуйста, выбери оценку дня');
+        document.getElementById("resultMsg").textContent = "Пожалуйста, выбери оценку дня.";
         return;
       }
 
       const payload = {
-        user_id: tg.initDataUnsafe.user?.id || 'неизвестно',
+        user_id: userId,
         rating: selectedRating,
-        good: document.getElementById('good').value,
-        bad: document.getElementById('bad').value,
-        improve: document.getElementById('improve').value
+        good,
+        bad,
+        improve,
+        timestamp: new Date().toISOString()
       };
-
-      console.log("Отправка:", payload);
 
       fetch('https://script.google.com/macros/s/AKfycbzq9m-4orNgcyitSQaTP6uT-xQVJLW4zN0MZWygtfiJKbGM26S6FavsGEoLoBvquKPHAQ/exec', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(payload)
       })
       .then(() => {
-        const messages = [
-          'Красавчик! 👏',
-          'Главное — движение, а не идеальность 💪',
-          'Ты уже лучше, чем был вчера ✨',
-          'Отметил — победил!',
-          'Маленькие шаги — большие изменения 🚶‍♂️'
+        const msg = [
+          '🔥 День сохранён!',
+          '💪 Отлично справился!',
+          '👏 Маленькие шаги — большие победы!',
+          '✨ Ты уже лучше, чем был вчера!'
         ];
-        const msg = messages[Math.floor(Math.random() * messages.length)];
-        document.getElementById('message').textContent = 'День сохранён! ' + msg;
-        document.getElementById('good').value = '';
-        document.getElementById('bad').value = '';
-        document.getElementById('improve').value = '';
+        document.getElementById("resultMsg").textContent = msg[Math.floor(Math.random() * msg.length)];
+        document.getElementById("good").value = '';
+        document.getElementById("bad").value = '';
+        document.getElementById("improve").value = '';
+        options.forEach(b => b.classList.remove("selected"));
         selectedRating = null;
-        document.querySelectorAll('.circle').forEach(c => c.classList.remove('selected'));
+      })
+      .catch(() => {
+        document.getElementById("resultMsg").textContent = "Ошибка при сохранении. Попробуй снова.";
       });
     });
   </script>
