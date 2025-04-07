@@ -2,111 +2,104 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
+  <title>Сила привычек — Оценка дня</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Оценка дня</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
+      font-family: sans-serif;
       margin: 0;
-      padding: 20px;
-      background-color: #f7f7f7;
-      color: #222;
-    }
-    .container {
-      max-width: 500px;
-      margin: auto;
-      background: #fff;
-      border-radius: 20px;
-      padding: 20px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 16px;
+      background: #f4f4f4;
     }
     h1 {
       font-size: 20px;
-      margin-bottom: 10px;
-    }
-    .legend {
-      font-size: 14px;
-      margin-bottom: 15px;
-      line-height: 1.6;
+      margin-bottom: 8px;
     }
     .rating-buttons {
       display: flex;
-      justify-content: space-between;
-      margin-bottom: 20px;
+      gap: 8px;
+      margin: 12px 0;
     }
-    .rating-button {
-      font-size: 22px;
-      padding: 10px;
+    .circle {
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
-      border: none;
-      background: #eee;
-      width: 50px;
-      height: 50px;
+      border: 2px solid #ccc;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+    .selected {
+      border: 3px solid black;
     }
     textarea {
       width: 100%;
-      margin-bottom: 10px;
-      padding: 10px;
-      font-size: 14px;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-    }
-    .save-btn {
-      width: 100%;
-      padding: 12px;
-      font-size: 16px;
-      border: none;
-      border-radius: 10px;
-      background-color: #007bff;
-      color: #fff;
-      cursor: pointer;
+      min-height: 60px;
       margin-top: 10px;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      resize: vertical;
+      font-size: 14px;
     }
-    .message {
-      margin-top: 15px;
-      text-align: center;
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      background-color: #2c6ef2;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    #message {
+      margin-top: 12px;
       font-weight: bold;
+      color: green;
+      text-align: center;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>📊 Оцените свой день по шкале:</h1>
-    <div class="legend">
-      🟢 — Отличный день<br>
-      🟡 — Хороший<br>
-      ⚪️ — Обычный<br>
-      🔴 — Плохой<br>
-      ⚫️ — Ужасный<br>
-      👉 Просто нажмите на кружок ниже
-    </div>
-    <div class="rating-buttons">
-      <button class="rating-button" onclick="selectRating('🟢')">🟢</button>
-      <button class="rating-button" onclick="selectRating('🟡')">🟡</button>
-      <button class="rating-button" onclick="selectRating('⚪️')">⚪️</button>
-      <button class="rating-button" onclick="selectRating('🔴')">🔴</button>
-      <button class="rating-button" onclick="selectRating('⚫️')">⚫️</button>
-    </div>
-    <textarea id="good" placeholder="Что было хорошо?"></textarea>
-    <textarea id="bad" placeholder="Что было плохо?"></textarea>
-    <textarea id="improve" placeholder="Что можно улучшить?"></textarea>
-    <button class="save-btn" onclick="saveDay()">Сохранить день</button>
-    <div class="message" id="message"></div>
+  <h1>📊 Оцените свой день по шкале:</h1>
+  <div>🟢 Отличный • 🟡 Хороший • ⚪️ Обычный • 🔴 Плохой • ⚫️ Ужасный</div>
+  <div class="rating-buttons">
+    <div class="circle" data-value="🟢" style="background-color:#4caf50;"></div>
+    <div class="circle" data-value="🟡" style="background-color:#ffeb3b;"></div>
+    <div class="circle" data-value="⚪️" style="background-color:#e0e0e0;"></div>
+    <div class="circle" data-value="🔴" style="background-color:#f44336;"></div>
+    <div class="circle" data-value="⚫️" style="background-color:#212121;"></div>
   </div>
+
+  <textarea id="good" placeholder="Что было хорошо?"></textarea>
+  <textarea id="bad" placeholder="Что было плохо?"></textarea>
+  <textarea id="improve" placeholder="Что можно улучшить?"></textarea>
+
+  <button id="save">Сохранить день</button>
+  <div id="message"></div>
+
   <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
-
     let selectedRating = null;
 
-    function selectRating(rating) {
-      selectedRating = rating;
-      document.getElementById('message').textContent = `Вы выбрали: ${rating}`;
-    }
+    document.querySelectorAll('.circle').forEach(circle => {
+      circle.addEventListener('click', () => {
+        document.querySelectorAll('.circle').forEach(c => c.classList.remove('selected'));
+        circle.classList.add('selected');
+        selectedRating = circle.dataset.value;
+      });
+    });
 
-    function saveDay() {
+    document.getElementById('save').addEventListener('click', () => {
+      if (!selectedRating) {
+        alert('Пожалуйста, выбери оценку дня');
+        return;
+      }
+
       const payload = {
         user_id: tg.initDataUnsafe.user?.id || 'неизвестно',
         rating: selectedRating,
@@ -138,8 +131,9 @@
         document.getElementById('bad').value = '';
         document.getElementById('improve').value = '';
         selectedRating = null;
+        document.querySelectorAll('.circle').forEach(c => c.classList.remove('selected'));
       });
-    }
+    });
   </script>
 </body>
 </html>
