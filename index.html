@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Оценка дня</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     body {
       font-family: sans-serif;
@@ -65,6 +66,11 @@
 
   <script>
     let selectedRating = '';
+    let tg = window.Telegram.WebApp;
+    tg.expand(); // расширяем окно
+    const telegramUser = tg.initDataUnsafe?.user;
+    const telegramId = telegramUser?.id || 'unknown';
+
     const buttons = document.querySelectorAll('.rating-btn');
     buttons.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -76,7 +82,7 @@
 
     function sendData() {
       const payload = {
-        tg_id: 'test_user',
+        tg_id: telegramId,
         rating: selectedRating,
         good: document.getElementById('good').value,
         bad: document.getElementById('bad').value,
@@ -92,7 +98,7 @@
         body: JSON.stringify(payload)
       });
 
-      alert('✅ Отправлено! Проверь таблицу.');
+      alert('✅ Сохранено! Спасибо за отметку.');
     }
   </script>
 
