@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Raw Telegram Init Data</title>
+  <style>
+    body {
+      background: #111;
+      color: #0f0;
+      font-family: monospace;
+      padding: 20px;
+    }
+    pre {
+      background: #222;
+      padding: 15px;
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h2>📦 Telegram WebApp Data</h2>
+  <pre id="output">Загрузка...</pre>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      let data = Telegram.WebApp?.initDataUnsafe;
+      let output = document.getElementById('output');
+
+      if (!data || !data.user) {
+        output.textContent = '❌ initData пусто. Telegram ID не передан.';
+      } else {
+        output.textContent = JSON.stringify(data, null, 2);
+      }
+    });
+  </script>
+</body>
+</html>
