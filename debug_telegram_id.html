@@ -1,0 +1,52 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Debug Telegram ID</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #1c1c1e;
+      color: white;
+      text-align: center;
+      padding: 40px;
+    }
+    .box {
+      background: #2c2c2e;
+      padding: 20px;
+      border-radius: 12px;
+      margin: 20px auto;
+      max-width: 400px;
+    }
+    h1 {
+      font-size: 22px;
+    }
+    .id {
+      font-size: 18px;
+      margin-top: 15px;
+      color: #30d158;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>Проверка Telegram WebApp</h1>
+    <div id="result" class="id">Загрузка...</div>
+  </div>
+
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+
+    const user = tg.initDataUnsafe?.user;
+
+    if (user && user.id) {
+      document.getElementById("result").innerText = "✅ Telegram ID: " + user.id;
+    } else {
+      document.getElementById("result").innerText = "❌ Не удалось получить Telegram ID";
+    }
+  </script>
+</body>
+</html>
