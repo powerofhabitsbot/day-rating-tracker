@@ -2,170 +2,99 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Оценка дня</title>
   <style>
     body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(180deg, #bf5af2, #7b61ff);
+      font-family: sans-serif;
+      background: linear-gradient(to bottom right, #c471f5, #fa71cd);
       color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 400px;
-      padding: 20px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 20px;
-      backdrop-filter: blur(20px);
-    }
-
-    h1 {
       text-align: center;
-      margin-bottom: 30px;
+      padding: 30px;
+    }
+    h1 {
       font-size: 24px;
     }
-
-    .rating-buttons {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
-      margin-bottom: 20px;
-    }
-
-    .rating-button {
-      flex: 1 1 40%;
-      padding: 12px;
-      border-radius: 12px;
+    .rating-btn {
+      margin: 10px;
+      padding: 10px 20px;
+      border-radius: 10px;
       border: 2px solid white;
-      text-align: center;
       cursor: pointer;
-      font-weight: bold;
-      transition: 0.3s;
+      display: inline-block;
     }
-
-    .rating-button.selected {
+    .selected {
       background-color: white;
-      color: #7b61ff;
+      color: #c471f5;
     }
-
-    .rating-button.green { background-color: #32d74b; }
-    .rating-button.yellow { background-color: #ffd60a; }
-    .rating-button.gray { background-color: #d1d1d6; }
-    .rating-button.red { background-color: #ff453a; }
-    .rating-button.black { background-color: #1c1c1e; }
-
     textarea {
-      width: 100%;
+      width: 90%;
+      margin: 10px 0;
       padding: 10px;
-      margin: 8px 0;
       border-radius: 10px;
       border: none;
-      resize: none;
-      font-size: 14px;
     }
-
     button {
-      width: 100%;
-      padding: 12px;
-      background-color: white;
-      color: #7b61ff;
-      font-weight: bold;
-      border: none;
-      border-radius: 12px;
+      padding: 12px 24px;
       font-size: 16px;
-      margin-top: 15px;
+      border: none;
+      background-color: white;
+      color: #c471f5;
+      border-radius: 10px;
       cursor: pointer;
-      transition: 0.3s;
-    }
-
-    button:hover {
-      background-color: #f0f0f0;
-    }
-
-    .message {
-      margin-top: 15px;
-      text-align: center;
-      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>📊 Как прошёл твой день?</h1>
 
-    <div class="rating-buttons">
-      <div class="rating-button green" data-value="Отличный">🟢 Отличный</div>
-      <div class="rating-button yellow" data-value="Хороший">🟡 Хороший</div>
-      <div class="rating-button gray" data-value="Нормальный">⚪ Нормальный</div>
-      <div class="rating-button red" data-value="Плохой">🔴 Плохой</div>
-      <div class="rating-button black" data-value="Ужасный">⚫ Ужасный</div>
-    </div>
+  <h1>📊 Как прошёл твой день?</h1>
 
-    <textarea id="good" placeholder="Что было хорошо?"></textarea>
-    <textarea id="bad" placeholder="Что было плохо?"></textarea>
-    <textarea id="improve" placeholder="Что можно улучшить?"></textarea>
-    <button onclick="sendData()">Сохранить</button>
-
-    <div class="message" id="message"></div>
+  <div id="ratings">
+    <div class="rating-btn" data-value="Отличный">🟢 Отличный</div>
+    <div class="rating-btn" data-value="Хороший">🟡 Хороший</div>
+    <div class="rating-btn" data-value="Нормальный">⚪️ Нормальный</div>
+    <div class="rating-btn" data-value="Плохой">🔴 Плохой</div>
+    <div class="rating-btn" data-value="Ужасный">⚫️ Ужасный</div>
   </div>
 
+  <textarea id="good" placeholder="Что было хорошо?"></textarea>
+  <textarea id="bad" placeholder="Что было плохо?"></textarea>
+  <textarea id="improve" placeholder="Что можно улучшить?"></textarea>
+
+  <br />
+  <button onclick="sendData()">Сохранить</button>
+
   <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbzq9m-4orNgcyitSQaTP6uT-xQVJLW4zN0MZWygtfiJKbGM26S6FavsGEoLoBvquKPHAQ/exec';
-
     let selectedRating = '';
-
-    document.querySelectorAll('.rating-button').forEach(button => {
-      button.addEventListener('click', () => {
-        document.querySelectorAll('.rating-button').forEach(btn => btn.classList.remove('selected'));
-        button.classList.add('selected');
-        selectedRating = button.getAttribute('data-value');
+    const buttons = document.querySelectorAll('.rating-btn');
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        buttons.forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedRating = btn.dataset.value;
       });
     });
 
     function sendData() {
-      const good = document.getElementById('good').value;
-      const bad = document.getElementById('bad').value;
-      const improve = document.getElementById('improve').value;
+      const payload = {
+        tg_id: 'test_user',
+        rating: selectedRating,
+        good: document.getElementById('good').value,
+        bad: document.getElementById('bad').value,
+        improve: document.getElementById('improve').value
+      };
 
-      if (!selectedRating) {
-        document.getElementById('message').textContent = 'Пожалуйста, выбери оценку дня.';
-        return;
-      }
-
-      fetch(scriptURL, {
+      fetch('https://script.google.com/macros/s/AKfycbzheFnauSlGKZGAEGX2_jAsF_hWGUDEA-MIETU1QakWHVAjFy1S-oSgRVlTqAl5qeoZLw/exec', {
         method: 'POST',
-        body: JSON.stringify({
-          tg_id: 'test_user',
-          rating: selectedRating,
-          good,
-          bad,
-          improve
-        }),
+        mode: 'no-cors',
         headers: {
           'Content-Type': 'application/json'
-        }
-      })
-        .then(response => response.text())
-        .then(() => {
-          document.getElementById('message').textContent = '✅ День сохранён!';
-          document.getElementById('good').value = '';
-          document.getElementById('bad').value = '';
-          document.getElementById('improve').value = '';
-          selectedRating = '';
-          document.querySelectorAll('.rating-button').forEach(btn => btn.classList.remove('selected'));
-        })
-        .catch(err => {
-          console.error(err);
-          document.getElementById('message').textContent = '❌ Ошибка при сохранении. Попробуй снова.';
-        });
+        },
+        body: JSON.stringify(payload)
+      });
+
+      alert('✅ Отправлено! Проверь таблицу.');
     }
   </script>
+
 </body>
 </html>
